@@ -15,18 +15,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Cache Node.js modules
-        uses: actions/cache@v3
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
       - name: Install Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '22.x'
+          node-version: '18.x'  # Compatible Node.js version for Expo SDK 49
 
       - name: Install project dependencies
         run: npm install --legacy-peer-deps
@@ -49,19 +41,6 @@ jobs:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: eas build -p android --profile production --non-interactive --wait
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
-        with:
-          name: android-apk
-          path: ./builds/<path-to-apk>  # Update with actual path
-
       - name: Display Build Logs
         if: failure()
         run: cat /home/expo/workingdir/build/logs/EASBuildWorker.log
-
-      - name: Upload Build Logs
-        if: failure()
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-logs
-          path: /home/expo/workingdir/build/logs/EASBuildWorker.log
